@@ -1,0 +1,26 @@
+version: '2.7'
+
+services:
+  wp-db:
+    image: mysql:5.7
+    ports:
+      - 8081:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wp_docker
+      MYSQL_USER: admin2021
+      MYSQL_PASSWORD: admin.2021
+
+  wordpress:
+    depends_on:
+      - wp-db
+    image: wordpress
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: wp-db:3306
+      WORDPRESS_DB_USER: admin2021
+      WORDPRESS_DB_PASSWORD: admin.2021
+      WORDPRESS_DB_NAME: wp_docker
