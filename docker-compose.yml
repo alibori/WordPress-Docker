@@ -3,6 +3,7 @@ version: '2.7'
 services:
   wp-db:
     image: mysql:5.7
+    restart: always
     ports:
       - 8081:3306
     environment:
@@ -14,9 +15,10 @@ services:
   wordpress:
     depends_on:
       - wp-db
-    image: wordpress
+    image: wordpress:latest
     ports:
       - 8080:80
+    restart: always
     volumes:
       - ./src:/var/www/html
     environment:
