@@ -1,28 +1,57 @@
-version: '2.7'
+version: '3'
 
 services:
+  # Database
   wp-db:
     image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
     restart: always
-    ports:
-      - 8081:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wp_docker
       MYSQL_USER: admin2021
       MYSQL_PASSWORD: admin.2021
+    networks:
+      - wpsite
 
+  # phpmyadmin
+  phpmyadmin:
+    depends_on:
+      - wp-db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8081:80'
+    environment:
+      PMA_HOST: wp-db
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - wpsite
+
+  #WordPress
   wordpress:
     depends_on:
       - wp-db
-    image: wordpress:latest
+    image: wordpress:5.8.1-php7.4-apache
     ports:
-      - 8080:80
+      - "127.0.0.1:8080:80"
     restart: always
-    volumes:
-      - ./src:/var/www/html
     environment:
+      VIRTUAL_HOST: wpdocker.local
       WORDPRESS_DB_HOST: wp-db:3306
       WORDPRESS_DB_USER: admin2021
       WORDPRESS_DB_PASSWORD: admin.2021
       WORDPRESS_DB_NAME: wp_docker
+      WORDPRESS_TABLE_PREFIX: wpdocker_
+    volumes:
+      - .:/var/www/html
+      - wordpress.ini:/usr/local/etc/php/conf.d/wordpress.ini
+    networks:
+      - wpsite
+
+networks:
+  wpsite:
+volumes:
+  db_data:
+  wordpress.ini:
